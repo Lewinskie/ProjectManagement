@@ -9,21 +9,8 @@ import { GET_PROJECTS } from "../queries/projectQueries";
 const ClientRow = ({ client }) => {
   const [deleteClient] = useMutation(DELETE_CLIENT, {
     variables: { id: client.id },
-    // refetchQueries: [GET_CLIENTS],
-
-    //Update cache after deleting client
-    update(cache, { data: { deleteClient } }) {
-      const { clients } = cache.readQuery({ query: GET_CLIENTS });
-      cache.writeQuery({
-        query: GET_CLIENTS,
-        data: {
-          clients: clients.filter((client) => client.id !== deleteClient.id),
-        },
-      });
-    },
-
-    // Refetch the updated projects
-    refetchQueries: [{ query: GET_PROJECTS }],
+    // Refetch the updated clients and projects
+    refetchQueries: [{ query: GET_CLIENTS }, { query: GET_PROJECTS }],
   });
   return (
     <TableRows>
