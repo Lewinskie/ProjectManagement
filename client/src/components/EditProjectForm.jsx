@@ -6,27 +6,47 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { Edit } from "@mui/icons-material";
+
 import { useState } from "react";
 import { useMutation } from "@apollo/client";
 import { UPDATE_PROJECT } from "../mutations/projectMutations";
 import { GET_PROJECT } from "../queries/projectQueries";
-import { GET_CLIENTS } from "../queries/clientQueries";
-import { useQuery } from "@apollo/client";
+import { useNavigate } from "react-router-dom";
 
 const EditProjectForm = ({ project }) => {
   const [name, setName] = useState(project.name);
   const [description, setDescription] = useState(project.description);
-  // const [clientId, setClientId] = useState(project.clientId);
   const [status, setStatus] = useState("new");
 
-  // Get clients for select
-  const { loading, error, data } = useQuery(GET_CLIENTS);
+  const navigate = useNavigate();
+
+  // Update project
+  const [updateProject] = useMutation(UPDATE_PROJECT, {
+    // Describe the variables to pass in the mutation from props and state
+    variables: { id: project.id, name, description, status },
+    // Refetch the updated project
+    refetchQueries: [{ query: GET_PROJECT, variables: { id: project.id } }],
+
+    // Redirect to home page
+    onCompleted: () => navigate("/"),
+  });
+
+  // Handle submit
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!name || !description || !status) {
+      return alert("Please fill in all the fields");
+    }
+    updateProject(name, description, status);
+  };
 
   return (
-    <Grid container>
+    <Grid container style={{ margin: "2rem 0rem" }}>
       <Grid item xs={12}>
-        <Typography variant="h4" style={{ margin: " 0.5rem 0rem" }}>
+        <Typography
+          variant="h5"
+          style={{ margin: " 0.5rem 0rem", color: "#8CBAE8" }}
+        >
           Update Project Details
         </Typography>
       </Grid>
@@ -73,29 +93,8 @@ const EditProjectForm = ({ project }) => {
           <MenuItem value="inProgress">In Progress</MenuItem>
           <MenuItem value="completed">Completed</MenuItem>
         </Select>
-        {/* <Typography variant="subtitle">Client Id:</Typography> */}
-        {/* <Select
-          type="text"
-          fullWidth
-          size="small"
-          value={clientId}
-          style={{ marginBottom: "0.5rem" }}
-          onChange={(e) => setClientId(e.target.value)}
-          displayEmpty
-        >
-          <MenuItem value="">Select Client</MenuItem>
-          {data.clients.map((client) => (
-            <MenuItem value={client.id} key={client.id}>
-              {client.name}
-            </MenuItem>
-          ))}
-        </Select> */}
 
-        <Button
-          type="submit"
-          // onClick={handleSubmit}
-          variant="outlined"
-        >
+        <Button type="submit" onClick={handleSubmit} variant="outlined">
           submit
         </Button>
       </Grid>
