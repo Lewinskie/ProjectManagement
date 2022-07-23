@@ -1,6 +1,8 @@
 const express = require("express");
 const app = express();
-require("dotenv").config();
+const config = require("dotenv");
+config.config();
+
 const port = process.env.PORT || 5000;
 // const schema = require("/server/schema/schema")\
 const schema = require("./schema/schema");
